@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Barbearia Acessível - Design System
+   Paleta: Azul e Branco com alto contraste para acessibilidade
+   Todas as cores em HSL
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 217 33% 17%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 217 33% 17%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 217 33% 17%;
+
+    /* Azul principal - #2563EB */
+    --primary: 217 91% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Azul claro para fundos secundários */
+    --secondary: 214 95% 93%;
+    --secondary-foreground: 217 91% 53%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 217 19% 45%;
+
+    /* Azul mais claro para destaques */
+    --accent: 214 95% 93%;
+    --accent-foreground: 217 91% 40%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 53%;
+
+    --radius: 1rem;
+
+    /* Cores customizadas para o app */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 217 33% 10%;
+    --foreground: 210 40% 98%;
+
+    --card: 217 33% 14%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 217 33% 14%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 217 33% 10%;
+
+    --secondary: 217 33% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 20%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 20%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 217 91% 60%;
+
+    --success: 142 76% 46%;
+    --success-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+@layer components {
+  /* Botão de seleção grande para acessibilidade */
+  .selection-button {
+    @apply flex flex-col items-center justify-center gap-3 p-6 rounded-2xl
+           bg-card border-2 border-border
+           transition-all duration-200 ease-out
+           hover:border-primary hover:shadow-lg hover:scale-[1.02]
+           focus:outline-none focus:ring-4 focus:ring-primary/30 focus:border-primary
+           active:scale-[0.98];
+  }
+
+  .selection-button.selected {
+    @apply border-primary bg-secondary shadow-md;
+  }
+
+  .selection-button.has-bg {
+    @apply relative overflow-hidden;
+  }
+
+  .selection-button.has-bg::before {
+    content: '';
+    @apply absolute inset-0 bg-black/40;
+  }
+
+  /* .selection-button.has-bg > * {
+    @apply relative z-10;
+  } */
+
+  /* Card de serviço com ícone grande */
+  .service-card {
+    @apply flex flex-col items-center justify-center gap-4 p-8 rounded-3xl
+           bg-card border-2 border-border
+           transition-all duration-200 ease-out cursor-pointer
+           hover:border-primary hover:shadow-xl hover:scale-[1.03]
+           focus:outline-none focus:ring-4 focus:ring-primary/30 focus:border-primary
+           active:scale-[0.97];
+    min-height: 180px;
+  }
+
+  .service-card.selected {
+    @apply border-primary bg-secondary shadow-lg;
+  }
+
+  /* Animações de entrada */
+  .animate-in {
+    animation: fadeIn 0.3s ease-out, slideUp 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(10px); }
+    to { transform: translateY(0); }
+  }
+
+  /* Animação de pulso para seleção */
+  .pulse-selection {
+    animation: pulseSelection 0.3s ease-out;
+  }
+
+  @keyframes pulseSelection {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+}
+
+@layer utilities {
+  /* Safe area para PWA em dispositivos com notch */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Texto grande para acessibilidade */
+  .text-accessible {
+    @apply text-lg md:text-xl font-medium;
+  }
+
+  /* Título acessível */
+  .title-accessible {
+    @apply text-2xl md:text-3xl font-bold;
+  }
+}

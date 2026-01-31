@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#2563EB"/>
+  <g transform="translate(128, 128)" stroke="#ffffff" stroke-width="24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Scissors icon -->
+    <circle cx="64" cy="64" r="32"/>
+    <circle cx="192" cy="64" r="32"/>
+    <path d="M96 64 L160 192"/>
+    <path d="M160 64 L96 192"/>
+    <line x1="96" y1="192" x2="160" y2="192"/>
+  </g>
+</svg>
