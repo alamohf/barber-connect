@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { DynamicIcon } from './DynamicIcon';
+import { Pencil } from 'lucide-react';
 
 interface OptionButtonProps {
   icon: string;
   label: string;
   selected?: boolean;
   onClick: () => void;
+  onEdit?: () => void;
   fullWidth?: boolean;
   backgroundImage?: string;
+  defaultImage?: string;
+  imageData?: string;
+  editable?: boolean;
 }
 
 export function OptionButton({
@@ -16,8 +21,12 @@ export function OptionButton({
   label,
   selected = false,
   onClick,
+  onEdit,
   fullWidth = false,
   backgroundImage,
+  defaultImage,
+  imageData,
+  editable = false,
 }: OptionButtonProps) {
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -27,44 +36,76 @@ export function OptionButton({
     setTimeout(() => setIsAnimating(false), 300);
   };
 
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.();
+  };
+
+  const displayImage = imageData || defaultImage || backgroundImage;
+
   return (
-    <button
-      onClick={handleClick}
-      aria-pressed={selected}
-      style={
-        backgroundImage
-          ? {
+    <div className={cn("relative", fullWidth && "w-full")}>
+      <button
+        onClick={handleClick}
+        aria-pressed={selected}
+        style={
+          backgroundImage
+            ? {
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
             }
-          : undefined
-      }
-      className={cn(
-        'selection-button',
-        selected && 'selected',
-        isAnimating && 'pulse-selection',
-        fullWidth && 'w-full',
-        backgroundImage && 'has-bg'
-      )}
-    >
-      <DynamicIcon
-        name={icon}
+            : undefined
+        }
         className={cn(
-          'h-8 w-8 transition-colors duration-200',
-          selected ? 'text-primary' : 'text-muted-foreground'
-        )}
-      />
-
-      <span
-        className={cn(
-          'text-base font-medium text-center',
-          selected ? 'text-primary' : 'text-foreground'
+          'selection-button min-h-[140px]',
+          selected && 'selected',
+          isAnimating && 'pulse-selection',
+          fullWidth && 'w-full',
+          backgroundImage && 'has-bg'
         )}
       >
-        {label}
-      </span>
-    </button>
+        {displayImage ? (
+          <div className={cn(
+            'rounded-xl overflow-hidden mb-2 border-2 border-border h-20 w-20',
+          )}>
+            <img
+              src={displayImage}
+              alt={label}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ) : (
+          <DynamicIcon
+            name={icon}
+            className={cn(
+              'h-8 w-8 transition-colors duration-200',
+              selected ? 'text-primary' : 'text-muted-foreground'
+            )}
+          />
+        )}
+
+        <span
+          className={cn(
+            'text-base font-medium text-center',
+            selected ? 'text-primary' : 'text-foreground'
+          )}
+        >
+          {label}
+        </span>
+      </button>
+
+      {editable && (
+        <button
+          onClick={handleEditClick}
+          className="absolute top-2 right-2 p-1.5 bg-background/90 backdrop-blur-sm rounded-full border border-border shadow-sm hover:bg-accent transition-colors z-20"
+          aria-label={`Editar ${label}`}
+        >
+          <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+        </button>
+      )}
+    </div>
   );
 }
+

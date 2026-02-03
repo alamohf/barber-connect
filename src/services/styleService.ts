@@ -1,10 +1,13 @@
 import { supabase } from '@/lib/supabase';
 
+export type styleType = 'hair' | 'beard' | 'haircut-method' | 'machine-height' | 'fade-type' | 'side-style' | 'finish-style' | 'scissor-height' | 'beard-height' | 'beard-contour';
+
 export interface UserStyleConfig {
     style_id: string;
-    type: 'hair' | 'beard';
+    type: styleType;
     custom_image_url: string;
 }
+
 
 export const styleService = {
     // Fetch all custom style configurations for a user
@@ -26,9 +29,10 @@ export const styleService = {
     async updateUserStyle(
         userId: string,
         styleId: string,
-        type: 'hair' | 'beard',
+        type: styleType,
         file: File
     ): Promise<string | null> {
+
         try {
             // 1. Upload image to Storage
             const fileExt = file.name.split('.').pop();
