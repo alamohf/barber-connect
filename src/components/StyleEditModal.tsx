@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,15 @@ export function StyleEditModal({
   const [imageData, setImageData] = useState<string | undefined>(currentImage);
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync state with props when modal opens or props change
+  useEffect(() => {
+    if (isOpen) {
+      setName(styleName);
+      setImageData(currentImage);
+      setSelectedFile(undefined);
+    }
+  }, [isOpen, styleName, currentImage]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,14 +87,13 @@ export function StyleEditModal({
 
   const handleSave = () => {
     onSave(name, selectedFile);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     onClose();
   };
 
   const handleReset = () => {
     onReset();
-    setName(styleName);
-    setImageData(undefined);
-    setSelectedFile(undefined);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     onClose();
   };
 

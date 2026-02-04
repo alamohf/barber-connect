@@ -68,6 +68,7 @@ export function ServiceCard({
             compact ? 'h-20 w-20' : size === 'large' ? 'h-28 w-28' : 'h-24 w-24'
           )}>
             <img
+              key={imageData || defaultImage}
               src={imageData || defaultImage}
               alt={label}
               className="w-full h-full object-cover"

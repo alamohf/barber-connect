@@ -14,7 +14,7 @@ export const styleService = {
     async getUserStyles(userId: string): Promise<UserStyleConfig[]> {
         const { data, error } = await supabase
             .from('user_style_configs')
-            .select('style_id, type, custom_image_url')
+            .select('style_id, type, custom_image_url, updated_at')
             .eq('user_id', userId);
 
         if (error) {
@@ -22,7 +22,12 @@ export const styleService = {
             return [];
         }
 
-        return data || [];
+        return (data || []).map(config => ({
+            ...config,
+            custom_image_url: config.updated_at
+                ? `${config.custom_image_url}?t=${new Date(config.updated_at).getTime()}`
+                : config.custom_image_url
+        }));
     },
 
     // Update or Insert a custom style configuration
@@ -36,31 +41,52 @@ export const styleService = {
         try {
             console.log(`[StyleService] Starting update for ${type}:${styleId}`);
 
-            // 1. Upload image to Storage
+            // 1. Cleanup old images for this style
+            console.log(`[StyleService] Cleaning up old images in bucket style-images for folder: ${userId}`);
+            const { data: files } = await supabase.storage
+                .from('style-images')
+                .list(userId);
+
+            if (files) {
+                const prefix = `${type}_${styleId}_`;
+                // Also match the old format without timestamp
+                const filesToDelete = files
+                    .filter(f => f.name.startsWith(prefix) || f.name.startsWith(`${type}_${styleId}.`))
+                    .map(f => `${userId}/${f.name}`);
+
+                if (filesToDelete.length > 0) {
+                    console.log('[StyleService] Deleting old files:', filesToDelete);
+                    await supabase.storage.from('style-images').remove(filesToDelete);
+                }
+            }
+
+            // 2. Upload image to Storage with unique name
             const fileExt = file.name.split('.').pop();
-            const fileName = `${userId}/${type}_${styleId}.${fileExt}`;
+            const timestamp = Date.now();
+            const fileName = `${userId}/${type}_${styleId}_${timestamp}.${fileExt}`;
             const filePath = `${fileName}`;
 
             console.log(`[StyleService] Uploading to Storage: ${filePath}`);
-            // Upload (upsert to overwrite if exists)
-            const { error: uploadError, data: uploadData } = await supabase.storage
+            const { error: uploadError } = await supabase.storage
                 .from('style-images')
-                .upload(filePath, file, { upsert: true });
+                .upload(filePath, file, {
+                    cacheControl: '0',
+                    upsert: false // We use unique names anyway
+                });
 
             if (uploadError) {
                 console.error('[StyleService] Storage Upload Error:', uploadError);
                 throw uploadError;
             }
-            console.log('[StyleService] Storage Upload Success:', uploadData);
 
-            // 2. Get Public URL
+            // 3. Get Public URL
             const { data: { publicUrl } } = supabase.storage
                 .from('style-images')
                 .getPublicUrl(filePath);
 
             console.log('[StyleService] Public URL:', publicUrl);
 
-            // 3. Save/Update record in Database
+            // 4. Save/Update record in Database
             console.log('[StyleService] Upserting to Database...');
             const { error: dbError } = await supabase
                 .from('user_style_configs')
@@ -81,7 +107,8 @@ export const styleService = {
             }
             console.log('[StyleService] Database Upsert Success');
 
-            return publicUrl;
+            // Return URL with timestamp as extra precaution
+            return `${publicUrl}?t=${Date.now()}`;
         } catch (error) {
             console.error('[StyleService] Final catch error:', error);
             return null;
@@ -108,9 +135,22 @@ export const styleService = {
                 throw dbError;
             }
 
-            // 2. Note: We could delete from Storage, but overwriting on upload 
-            // is usually enough and safer (prevents broken links if shared).
-            // For now, removing the DB record is what triggers the default icon.
+            // 2. Remove files from Storage
+            const { data: files } = await supabase.storage
+                .from('style-images')
+                .list(userId);
+
+            if (files) {
+                const prefix = `${type}_${styleId}_`;
+                const filesToDelete = files
+                    .filter(f => f.name.startsWith(prefix) || f.name.startsWith(`${type}_${styleId}.`))
+                    .map(f => `${userId}/${f.name}`);
+
+                if (filesToDelete.length > 0) {
+                    console.log('[StyleService] Cleaning up Storage on reset:', filesToDelete);
+                    await supabase.storage.from('style-images').remove(filesToDelete);
+                }
+            }
 
             console.log('[StyleService] style reset successfully');
             return true;
