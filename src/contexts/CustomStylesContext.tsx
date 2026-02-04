@@ -28,6 +28,7 @@ interface CustomStylesContextType {
   cuttingMethods: any[];
   loading: boolean;
   updateStyleImage: (styleId: string, type: styleType, file: File) => Promise<boolean>;
+  resetStyleImage: (styleId: string, type: styleType) => Promise<boolean>;
 }
 
 const CustomStylesContext = createContext<CustomStylesContextType | undefined>(undefined);
@@ -91,6 +92,17 @@ export function CustomStylesProvider({ children }: { children: React.ReactNode }
     return false;
   };
 
+  const resetStyleImage = async (styleId: string, type: styleType) => {
+    if (!user) return false;
+
+    const success = await styleService.deleteUserStyle(user.id, styleId, type);
+    if (success) {
+      setCustomConfigs(prev => prev.filter(c => !(c.style_id === styleId && c.type === type)));
+      return true;
+    }
+    return false;
+  };
+
   return (
     <CustomStylesContext.Provider value={{
       haircutStyles,
@@ -104,7 +116,8 @@ export function CustomStylesProvider({ children }: { children: React.ReactNode }
       beardContours,
       cuttingMethods,
       loading,
-      updateStyleImage
+      updateStyleImage,
+      resetStyleImage
     }}>
       {children}
     </CustomStylesContext.Provider>

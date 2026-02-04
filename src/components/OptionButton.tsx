@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { DynamicIcon } from './DynamicIcon';
 import { Pencil } from 'lucide-react';
@@ -29,6 +29,12 @@ export function OptionButton({
   editable = false,
 }: OptionButtonProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // Reset error state when image source changes
+  useEffect(() => {
+    setImageError(false);
+  }, [imageData, defaultImage]);
 
   const handleClick = () => {
     setIsAnimating(true);
@@ -42,6 +48,11 @@ export function OptionButton({
   };
 
   const displayImage = imageData || defaultImage || backgroundImage;
+
+  // Reset error state when image source changes
+  useEffect(() => {
+    setImageError(false);
+  }, [displayImage]);
 
   return (
     <div className={cn("relative", fullWidth && "w-full")}>
@@ -66,7 +77,7 @@ export function OptionButton({
           backgroundImage && 'has-bg'
         )}
       >
-        {displayImage ? (
+        {displayImage && !imageError ? (
           <div className={cn(
             'rounded-xl overflow-hidden mb-2 border-2 border-border h-20 w-20',
           )}>
@@ -74,6 +85,7 @@ export function OptionButton({
               src={displayImage}
               alt={label}
               className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
             />
           </div>
         ) : (

@@ -18,7 +18,7 @@ const HaircutCatalog = () => {
     return { current: 1, total: 3 };
   };
 
-  const { haircutStyles, updateStyleImage } = useCustomStyles();
+  const { haircutStyles, updateStyleImage, resetStyleImage } = useCustomStyles();
   const [editingStyle, setEditingStyle] = useState<HaircutStyle | null>(null);
 
   const handleSelect = (style: HaircutStyle) => {
@@ -33,8 +33,10 @@ const HaircutCatalog = () => {
     setEditingStyle(null);
   };
 
-  const handleEditReset = () => {
-    // TODO: Implement reset logic
+  const handleEditReset = async () => {
+    if (editingStyle) {
+      await resetStyleImage(editingStyle.id, 'hair');
+    }
     setEditingStyle(null);
   };
 
