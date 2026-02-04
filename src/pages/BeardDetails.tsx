@@ -17,7 +17,8 @@ const BeardDetails = () => {
   const {
     beardHeights,
     beardContours,
-    updateStyleImage
+    updateStyleImage,
+    resetStyleImage
   } = useCustomStyles();
 
   const [editingOption, setEditingOption] = useState<{
@@ -35,7 +36,10 @@ const BeardDetails = () => {
     setEditingOption(null);
   };
 
-  const handleEditReset = () => {
+  const handleEditReset = async () => {
+    if (editingOption) {
+      await resetStyleImage(editingOption.id, editingOption.type);
+    }
     setEditingOption(null);
   };
 

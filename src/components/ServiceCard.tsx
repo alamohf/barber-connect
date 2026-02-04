@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { DynamicIcon } from './DynamicIcon';
 import { Pencil } from 'lucide-react';
@@ -31,6 +31,11 @@ export function ServiceCard({
   compact = false,
 }: ServiceCardProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [imageData, defaultImage]);
 
   const handleClick = () => {
     setIsAnimating(true);
@@ -57,7 +62,7 @@ export function ServiceCard({
         aria-pressed={selected}
       >
         {/* Hierarquia: imageData (custom) → defaultImage → icon */}
-        {(imageData || defaultImage) ? (
+        {(imageData || defaultImage) && !imageError ? (
           <div className={cn(
             'rounded-xl overflow-hidden mx-auto border-2 border-border',
             compact ? 'h-20 w-20' : size === 'large' ? 'h-28 w-28' : 'h-24 w-24'
@@ -66,6 +71,7 @@ export function ServiceCard({
               src={imageData || defaultImage}
               alt={label}
               className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
             />
           </div>
         ) : (

@@ -10,7 +10,7 @@ import { BeardStyle } from '@/types/barber';
 const BeardCatalog = () => {
   const navigate = useNavigate();
   const { selection, setBeardStyle } = useSelection();
-  const { beardStyles, updateStyleImage } = useCustomStyles();
+  const { beardStyles, updateStyleImage, resetStyleImage } = useCustomStyles();
   const [editingStyle, setEditingStyle] = useState<BeardStyle | null>(null);
 
   const handleSelect = (style: BeardStyle) => {
@@ -25,8 +25,10 @@ const BeardCatalog = () => {
     setEditingStyle(null);
   };
 
-  const handleEditReset = () => {
-    // TODO: Implement reset
+  const handleEditReset = async () => {
+    if (editingStyle) {
+      await resetStyleImage(editingStyle.id, 'beard');
+    }
     setEditingStyle(null);
   };
 
